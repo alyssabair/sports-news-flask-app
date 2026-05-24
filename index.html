@@ -91,13 +91,13 @@
             <button onclick="loadPGAData()">Load PGA Data</button>
             <div id ="pga-data"></div>
         </div>
+        
         <div class="stat-column">
             <h2>NBA</h2>
             <p>Leaderboard</p>
-            <img src="https://alyssas-sports-analytics.onrender.com/nba-chart.png" alt="Top NBA Teams Chart" style="width: 100%; max-width: 400px; border-radius: 4px; margin-top: 10px;">
-            <button onclick="window.location.reload()">Refresh Dashboard</button>
-            <div>
+            <img src="https://alyssas-sports-analytics.onrender.com/nba-chart.png" alt="NBA Chart" style="width: 100%; max-width: 400px; border-radius: 4px; margin-top: 10px;">
         </div>
+        
         <div class="stat-column">
             <h2>NFL</h2>
             <p>Leaderbord</p>
@@ -129,16 +129,14 @@
 
     <script>
         function loadAllNews() {
-            // 1. Show loading state in all three columns
             document.getElementById('pga-news').innerHTML = '<p>Loading...</p>';
             document.getElementById('nba-news').innerHTML = '<p>Loading...</p>';
             document.getElementById('nfl-news').innerHTML = '<p>Loading...</p>';
 
-            // 2. Fetch the combined data from your local Python server
+            // Updated to point directly to your live backend server
             fetch('https://alyssas-sports-analytics.onrender.com/news')
                 .then(response => response.json())
                 .then(articles => {
-                    // 3. Send the array to our filter function for each column
                     displayCustomNews(articles, 'PGA', 'pga-news');
                     displayCustomNews(articles, 'NBA', 'nba-news');
                     displayCustomNews(articles, 'NFL', 'nfl-news');
@@ -153,8 +151,6 @@
 
         function displayCustomNews(articles, sportType, elementId) {
             const newsDiv = document.getElementById(elementId);
-            
-            // Look through the list to find the item matching 'PGA', 'NBA', or 'NFL'
             const article = articles.find(a => a.sport === sportType);
             
             if (article) {
