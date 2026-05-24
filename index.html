@@ -94,10 +94,9 @@
         <div class="stat-column">
             <h2>NBA</h2>
             <p>Leaderboard</p>
-            <button onclick="loadNBAData()">Load NBA Data</button>
-            <div id ="nba-data"></div>
-            <button onclick="loadNBAStandings()">Load Season Standings</button>
-            <div id ="nba-standings"></div>
+            <img src="https://alyssas-sports-analytics.onrender.com/nba-chart.png" alt="Top NBA Teams Chart" style="width: 100%; max-width: 400px; border-radius: 4px; margin-top: 10px;">
+            <button onclick="window.location.reload()">Refresh Dashboard</button>
+            <div>
         </div>
         <div class="stat-column">
             <h2>NFL</h2>
@@ -136,7 +135,7 @@
             document.getElementById('nfl-news').innerHTML = '<p>Loading...</p>';
 
             // 2. Fetch the combined data from your local Python server
-            fetch('http://127.0.0.1:8080/news')
+            fetch('https://alyssas-sports-analytics.onrender.com/news')
                 .then(response => response.json())
                 .then(articles => {
                     // 3. Send the array to our filter function for each column
