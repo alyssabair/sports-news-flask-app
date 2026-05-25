@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset ="UTF-8">
+    <meta charset="UTF-8">
     <title>Alyssa's Sports Analytics Website</title>
     <style>
         body {
-            font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
             margin: 20px;
             font-size: xx-large;
             background-color: #E2E6F3;
@@ -22,108 +22,188 @@
         .news-container { display: flex; flex-direction: column; gap: 20px; }
         .news-article { background-color: #AEC9A6; padding: 20px; border-radius: 8px; }
         .news-article h3 { margin: 0 0 10px 0; color: #3C91E6; font-size: 1.5rem; }
-        .news-article p { font-size: 1.1rem; color: #333; margin: 0; }
+        .news-article p { font-size: 1.1rem; color: #333; margin: 5px 0; }
+        .news-meta { font-size: 0.85rem; color: #666; }
     </style>
 </head>
 <body>
     <h1>Sports Stats</h1>
 
     <div class="stats-container">
+
+        <!-- PGA -->
         <div class="stat-column">
             <h2>PGA</h2>
             <p>Live Leaderboard</p>
             <button onclick="loadPGAData()">Load PGA Scores</button>
             <div id="pga-data" class="data-display">Scores will load here...</div>
         </div>
-        
+
+        <!-- NBA -->
         <div class="stat-column">
             <h2>NBA</h2>
-            <p>Win Percentages</p>
-            <button onclick="loadNBAData()">Load NBA Stats</button>
-            <div id="nba-data" class="data-display">Stats will load here...</div>
+            <p>Today's Games</p>
+            <button onclick="loadNBAData()">Load NBA Games</button>
+            <div id="nba-data" class="data-display">Games will load here...</div>
+            <button onclick="loadNBAStandings()" style="margin-top: 10px;">Load Season Standings</button>
+            <div id="nba-standings" class="data-display" style="display:none;"></div>
         </div>
-        
+
+        <!-- NFL -->
         <div class="stat-column">
             <h2>NFL</h2>
-            <p>Leaderboard</p>
-            <div class="data-display">NFL Pipeline Coming Soon!</div>
+            <p>Season Standings</p>
+            <button onclick="loadNFLStandings()">Load NFL Standings</button>
+            <div id="nfl-standings" class="data-display">Standings will load here...</div>
         </div>
+
     </div>
 
+    <!-- News -->
     <div class="news-section">
         <h2>Top Sports News</h2>
         <button onclick="loadAllNews()" style="display: block; margin: 0 auto 20px; padding: 15px 30px; font-size: 1.2rem;">Load Latest News</button>
         <div class="news-container">
             <div class="news-article">
                 <h3>PGA News</h3>
-                <div id="pga-news"><p>Click button above to see updates</p></div>
+                <div id="pga-news"><p>Click "Load Latest News" to see updates</p></div>
             </div>
             <div class="news-article">
                 <h3>NBA News</h3>
-                <div id="nba-news"><p>Click button above to see updates</p></div>
+                <div id="nba-news"><p>Click "Load Latest News" to see updates</p></div>
             </div>
             <div class="news-article">
                 <h3>NFL News</h3>
-                <div id="nfl-news"><p>Click button above to see updates</p></div>
+                <div id="nfl-news"><p>Click "Load Latest News" to see updates</p></div>
             </div>
         </div>
     </div>
 
     <script>
-        const BASE_URL = 'https://alyssas-sports-analytics.onrender.com';
 
+        /* ── PGA Live Leaderboard ── */
         function loadPGAData() {
-            document.getElementById('pga-data').innerHTML = 'Loading scores...';
-            fetch(`${BASE_URL}/api/pga`)
+            document.getElementById('pga-data').innerHTML = 'Loading...';
+            fetch('https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard')
                 .then(r => r.json())
                 .then(data => {
-                    let html = '<ol style="margin: 0; padding-left: 20px;">';
-                    data.forEach(item => {
-                        html += `<li><strong>${item.player}</strong>: ${item.score}</li>`;
-                    });
+                    const div = document.getElementById('pga-data');
+                    if (!data.events || data.events.length === 0) {
+                        div.innerHTML = '<p>No active tournament right now</p>';
+                        return;
+                    }
+                    const tournament = data.events[0];
+                    const players = tournament.competitions[0].competitors;
+                    let html = `<strong>${tournament.name}</strong><ol style="margin:8px 0 0; padding-left:20px;">`;
+                    for (let i = 0; i < Math.min(5, players.length); i++) {
+                        const p = players[i];
+                        html += `<li>${p.athlete.displayName} &nbsp; <strong>${p.score || 'E'}</strong></li>`;
+                    }
                     html += '</ol>';
-                    document.getElementById('pga-data').innerHTML = html;
-                });
-        }
-
-        function loadNBAData() {
-            document.getElementById('nba-data').innerHTML = 'Loading standings...';
-            fetch(`${BASE_URL}/api/nba`)
-                .then(r => r.json())
-                .then(data => {
-                    let html = '<ol style="margin: 0; padding-left: 20px;">';
-                    data.forEach(item => {
-                        html += `<li><strong>${item.team}</strong>: ${item.stat}</li>`;
-                    });
-                    html += '</ol>';
-                    document.getElementById('nba-data').innerHTML = html;
-                });
-        }
-
-        function loadAllNews() {
-            document.getElementById('pga-news').innerHTML = '<p>Loading...</p>';
-            document.getElementById('nba-news').innerHTML = '<p>Loading...</p>';
-            document.getElementById('nfl-news').innerHTML = '<p>Loading...</p>';
-
-            fetch(`${BASE_URL}/news`)
-                .then(response => response.json())
-                .then(articles => {
-                    displayCustomNews(articles, 'PGA', 'pga-news');
-                    displayCustomNews(articles, 'NBA', 'nba-news');
-                    displayCustomNews(articles, 'NFL', 'nfl-news');
+                    div.innerHTML = html;
                 })
-                .catch(err => console.error(err));
+                .catch(() => { document.getElementById('pga-data').innerHTML = 'Error loading data'; });
         }
 
-        function displayCustomNews(articles, sportType, elementId) {
-            const newsDiv = document.getElementById(elementId);
-            const article = articles.find(a => a.sport === sportType);
-            if (article) {
-                newsDiv.innerHTML = `<p style="font-weight: bold;">${article.title}</p>`;
-            } else {
-                newsDiv.innerHTML = '<p>No news available</p>';
-            }
+        /* ── NBA Today's Games ── */
+        function loadNBAData() {
+            document.getElementById('nba-data').innerHTML = 'Loading...';
+            fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard')
+                .then(r => r.json())
+                .then(data => {
+                    const div = document.getElementById('nba-data');
+                    if (!data.events || data.events.length === 0) {
+                        div.innerHTML = '<p>No games today</p>';
+                        return;
+                    }
+                    let html = '<strong>Today\'s Games:</strong><ul style="margin:8px 0 0; padding-left:20px;">';
+                    data.events.slice(0, 5).forEach(game => {
+                        const comp = game.competitions[0];
+                        const home = comp.competitors.find(t => t.homeAway === 'home');
+                        const away = comp.competitors.find(t => t.homeAway === 'away');
+                        html += `<li>${away.team.abbreviation} ${away.score || '0'} @ ${home.team.abbreviation} ${home.score || '0'}</li>`;
+                    });
+                    html += '</ul>';
+                    div.innerHTML = html;
+                })
+                .catch(() => { document.getElementById('nba-data').innerHTML = 'Error loading data'; });
         }
+
+        /* ── NBA Season Standings ── */
+        function loadNBAStandings() {
+            const div = document.getElementById('nba-standings');
+            div.style.display = 'block';
+            div.innerHTML = 'Loading...';
+            fetch('https://site.api.espn.com/apis/v2/sports/basketball/nba/standings?season=2025')
+                .then(r => r.json())
+                .then(data => displayStandings(data, 'nba-standings'))
+                .catch(() => { div.innerHTML = 'Error loading standings'; });
+        }
+
+        /* ── NFL Season Standings (2024 = most recent completed season) ── */
+        function loadNFLStandings() {
+            document.getElementById('nfl-standings').innerHTML = 'Loading...';
+            fetch('https://site.api.espn.com/apis/v2/sports/football/nfl/standings?season=2024')
+                .then(r => r.json())
+                .then(data => displayStandings(data, 'nfl-standings'))
+                .catch(() => { document.getElementById('nfl-standings').innerHTML = 'Error loading standings'; });
+        }
+
+        /* ── Shared: render conference standings ── */
+        function displayStandings(data, elementId) {
+            const div = document.getElementById(elementId);
+            if (!data.children || data.children.length === 0) {
+                div.innerHTML = '<p>No standings data available</p>';
+                return;
+            }
+            let html = '';
+            data.children.forEach(conference => {
+                html += `<strong>${conference.name}</strong><ol style="margin:4px 0 12px; padding-left:20px;">`;
+                conference.standings.entries.slice(0, 5).forEach(team => {
+                    const name = team.team.displayName;
+                    const wins   = team.stats.find(s => s.name === 'wins')?.displayValue   || '0';
+                    const losses = team.stats.find(s => s.name === 'losses')?.displayValue || '0';
+                    html += `<li>${name} &nbsp; <strong>${wins}-${losses}</strong></li>`;
+                });
+                html += '</ol>';
+            });
+            div.innerHTML = html;
+        }
+
+        /* ── News ── */
+        function loadAllNews() {
+            ['pga-news','nba-news','nfl-news'].forEach(id => {
+                document.getElementById(id).innerHTML = '<p>Loading...</p>';
+            });
+            fetchNews('https://site.api.espn.com/apis/site/v2/sports/golf/pga/news',        'pga-news');
+            fetchNews('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/news',  'nba-news');
+            fetchNews('https://site.api.espn.com/apis/site/v2/sports/football/nfl/news',    'nfl-news');
+        }
+
+        function fetchNews(url, elementId) {
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    const div = document.getElementById(elementId);
+                    if (!data.articles || data.articles.length === 0) {
+                        div.innerHTML = '<p>No news available</p>';
+                        return;
+                    }
+                    const a = data.articles[0];
+                    const date = new Date(a.published).toLocaleDateString('en-US', {
+                        month: 'short', day: 'numeric', year: 'numeric'
+                    });
+                    const link = a.links?.web?.href || '#';
+                    div.innerHTML = `
+                        <p class="news-meta">${date}</p>
+                        <p><strong>${a.headline}</strong></p>
+                        <p style="font-size:0.95rem;">${a.description || ''}</p>
+                        <a href="${link}" target="_blank" style="color:#3C91E6; font-size:0.95rem;">Read more →</a>
+                    `;
+                })
+                .catch(() => { document.getElementById(elementId).innerHTML = '<p>Error loading news</p>'; });
+        }
+
     </script>
 </body>
 </html>
