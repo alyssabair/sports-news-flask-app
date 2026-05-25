@@ -10,41 +10,19 @@
             font-size: xx-large;
             background-color: #E2E6F3;
         }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .stats-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .stat-column {
-            flex: 1;
-            background-color: #3C91E6;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .stat-column h2 {
-            font-size: 2rem;
-            margin: 0;
-            color: black;
-        }
-        .stat-column p {
-            font-size: 1rem;
-            margin: 5px 0 0;
-            color: black;
-        }
-        button {
-            padding: 10px;
-            font-size: 1rem;
-            margin-top: 10px;
-            cursor: pointer;
-        }
+        h1 { text-align: center; margin-bottom: 30px; }
+        .stats-container { display: flex; justify-content: space-between; gap: 20px; }
+        .stat-column { flex: 1; background-color: #3C91E6; padding: 20px; border-radius: 8px; text-align: center; }
+        .stat-column h2 { font-size: 2rem; margin: 0; color: black; }
+        .stat-column p { font-size: 1.2rem; margin: 5px 0 15px; color: black; font-weight: bold; }
+        .data-display { background: white; border-radius: 6px; padding: 10px; font-size: 1.1rem; text-align: left; margin-top: 15px; min-height: 100px; color: black; }
+        button { padding: 10px; font-size: 1rem; margin-top: 10px; cursor: pointer; }
+        .news-section { margin-top: 40px; }
+        .news-section h2 { text-align: center; margin-bottom: 20px; font-size: 2.5rem; }
+        .news-container { display: flex; flex-direction: column; gap: 20px; }
+        .news-article { background-color: #AEC9A6; padding: 20px; border-radius: 8px; }
+        .news-article h3 { margin: 0 0 10px 0; color: #3C91E6; font-size: 1.5rem; }
+        .news-article p { font-size: 1.1rem; color: #333; margin: 0; }
     </style>
 </head>
 <body>
@@ -53,27 +31,99 @@
     <div class="stats-container">
         <div class="stat-column">
             <h2>PGA</h2>
-            <p>Live Scoreboard</p>
-            <img src="https://alyssas-sports-analytics.onrender.com/pga-chart.png" alt="PGA Chart" style="width: 100%; max-width: 400px; border-radius: 4px; margin-top: 10px;">
+            <p>Live Leaderboard</p>
+            <button onclick="loadPGAData()">Load PGA Scores</button>
+            <div id="pga-data" class="data-display">Scores will load here...</div>
         </div>
         
         <div class="stat-column">
             <h2>NBA</h2>
-            <p>Leaderboard</p>
-            <img src="https://alyssas-sports-analytics.onrender.com/nba-chart.png" alt="NBA Chart" style="width: 100%; max-width: 400px; border-radius: 4px; margin-top: 10px;">
+            <p>Win Percentages</p>
+            <button onclick="loadNBAData()">Load NBA Stats</button>
+            <div id="nba-data" class="data-display">Stats will load here...</div>
         </div>
         
         <div class="stat-column">
             <h2>NFL</h2>
             <p>Leaderboard</p>
-            <div style="background-color: #ffffff; padding: 40px 10px; border-radius: 4px; font-size: 1.2rem; margin-top: 10px; color: #555;">
-                NFL Chart Pipeline Coming Soon!
+            <div class="data-display">NFL Pipeline Coming Soon!</div>
+        </div>
+    </div>
+
+    <div class="news-section">
+        <h2>Top Sports News</h2>
+        <button onclick="loadAllNews()" style="display: block; margin: 0 auto 20px; padding: 15px 30px; font-size: 1.2rem;">Load Latest News</button>
+        <div class="news-container">
+            <div class="news-article">
+                <h3>PGA News</h3>
+                <div id="pga-news"><p>Click button above to see updates</p></div>
+            </div>
+            <div class="news-article">
+                <h3>NBA News</h3>
+                <div id="nba-news"><p>Click button above to see updates</p></div>
+            </div>
+            <div class="news-article">
+                <h3>NFL News</h3>
+                <div id="nfl-news"><p>Click button above to see updates</p></div>
             </div>
         </div>
     </div>
 
-    <div style="text-align: center; margin-top: 40px;">
-        <button onclick="window.location.reload()" style="padding: 15px 30px; font-size: 1.2rem;">Refresh Dashboard Statistics</button>
-    </div>
+    <script>
+        const BASE_URL = 'https://alyssas-sports-analytics.onrender.com';
+
+        function loadPGAData() {
+            document.getElementById('pga-data').innerHTML = 'Loading scores...';
+            fetch(`${BASE_URL}/api/pga`)
+                .then(r => r.json())
+                .then(data => {
+                    let html = '<ol style="margin: 0; padding-left: 20px;">';
+                    data.forEach(item => {
+                        html += `<li><strong>${item.player}</strong>: ${item.score}</li>`;
+                    });
+                    html += '</ol>';
+                    document.getElementById('pga-data').innerHTML = html;
+                });
+        }
+
+        function loadNBAData() {
+            document.getElementById('nba-data').innerHTML = 'Loading standings...';
+            fetch(`${BASE_URL}/api/nba`)
+                .then(r => r.json())
+                .then(data => {
+                    let html = '<ol style="margin: 0; padding-left: 20px;">';
+                    data.forEach(item => {
+                        html += `<li><strong>${item.team}</strong>: ${item.stat}</li>`;
+                    });
+                    html += '</ol>';
+                    document.getElementById('nba-data').innerHTML = html;
+                });
+        }
+
+        function loadAllNews() {
+            document.getElementById('pga-news').innerHTML = '<p>Loading...</p>';
+            document.getElementById('nba-news').innerHTML = '<p>Loading...</p>';
+            document.getElementById('nfl-news').innerHTML = '<p>Loading...</p>';
+
+            fetch(`${BASE_URL}/news`)
+                .then(response => response.json())
+                .then(articles => {
+                    displayCustomNews(articles, 'PGA', 'pga-news');
+                    displayCustomNews(articles, 'NBA', 'nba-news');
+                    displayCustomNews(articles, 'NFL', 'nfl-news');
+                })
+                .catch(err => console.error(err));
+        }
+
+        function displayCustomNews(articles, sportType, elementId) {
+            const newsDiv = document.getElementById(elementId);
+            const article = articles.find(a => a.sport === sportType);
+            if (article) {
+                newsDiv.innerHTML = `<p style="font-weight: bold;">${article.title}</p>`;
+            } else {
+                newsDiv.innerHTML = '<p>No news available</p>';
+            }
+        }
+    </script>
 </body>
 </html>
