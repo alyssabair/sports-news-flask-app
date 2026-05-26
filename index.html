@@ -26,6 +26,28 @@
         button { padding: 10px 14px; font-size: 1rem; margin-top: 10px; cursor: pointer; border: none; border-radius: 6px; background-color: #fff; font-weight: bold; transition: background 0.2s; }
         button:hover { background-color: #d0e8ff; }
 
+        /* ── Padres highlight ── */
+        .padres-game {
+            background: linear-gradient(135deg, #2F241D, #FFC425);
+            border-radius: 6px;
+            padding: 4px 8px;
+            margin: 4px 0;
+            font-weight: bold;
+        }
+        .padres-game span.team-away { color: #FFC425; }
+        .padres-game span.team-home { color: #FFC425; }
+        .padres-game span.vs { color: #fff; }
+
+        .padres-standing {
+            background: linear-gradient(135deg, #2F241D, #FFC425);
+            border-radius: 6px;
+            padding: 4px 8px;
+            margin: 2px 0;
+            font-weight: bold;
+            color: #FFC425;
+            list-style: none;
+        }
+
         /* ── News ── */
         .news-section { margin-top: 40px; }
         .news-section h2 { text-align: center; margin-bottom: 20px; font-size: 2.5rem; }
@@ -182,7 +204,7 @@
         div.innerHTML = 'Loading...';
         fetch('https://site.api.espn.com/apis/v2/sports/basketball/nba/standings?season=2025')
             .then(r => r.json())
-            .then(data => displayStandings(data, 'nba-standings'))
+            .then(data => displayStandings(data, 'nba-standings', null))
             .catch(() => { div.innerHTML = 'Error loading standings'; });
     }
 
@@ -191,11 +213,15 @@
         document.getElementById('nfl-standings').innerHTML = 'Loading...';
         fetch('https://site.api.espn.com/apis/v2/sports/football/nfl/standings?season=2024')
             .then(r => r.json())
-            .then(data => displayStandings(data, 'nfl-standings'))
+            .then(data => displayStandings(data, 'nfl-standings', null))
             .catch(() => { document.getElementById('nfl-standings').innerHTML = 'Error loading standings'; });
     }
 
     /* ══════════════ MLB ══════════════ */
+    function isPadres(name) {
+        return name && name.toLowerCase().includes('padres');
+    }
+
     function loadMLBData() {
         document.getElementById('mlb-data').innerHTML = 'Loading...';
         fetch('https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard')
@@ -205,12 +231,31 @@
                 if (!data.events || data.events.length === 0) {
                     div.innerHTML = '<p>No games today</p>'; return;
                 }
-                let html = '<strong>Today\'s Games:</strong><ul style="margin:8px 0 0; padding-left:20px;">';
-                data.events.slice(0, 6).forEach(game => {
+
+                let html = '<strong>Today\'s Games:</strong><ul style="margin:8px 0 0; padding-left:0; list-style:none;">';
+                data.events.forEach(game => {
                     const comp = game.competitions[0];
                     const home = comp.competitors.find(t => t.homeAway === 'home');
                     const away = comp.competitors.find(t => t.homeAway === 'away');
-                    html += `<li>${away.team.abbreviation} ${away.score || '0'} @ ${home.team.abbreviation} ${home.score || '0'}</li>`;
+                    const homeName = home.team.displayName;
+                    const awayName = away.team.displayName;
+                    const homeScore = home.score || '0';
+                    const awayScore = away.score || '0';
+                    const homeAbbr = home.team.abbreviation;
+                    const awayAbbr = away.team.abbreviation;
+
+                    if (isPadres(homeName) || isPadres(awayName)) {
+                        // Padres game — highlight it
+                        html += `
+                            <li class="padres-game">
+                                ⚾ <span class="team-away">${awayAbbr} ${awayScore}</span>
+                                <span class="vs"> @ </span>
+                                <span class="team-home">${homeAbbr} ${homeScore}</span>
+                                &nbsp;🟡
+                            </li>`;
+                    } else {
+                        html += `<li style="padding: 2px 8px;">${awayAbbr} ${awayScore} @ ${homeAbbr} ${homeScore}</li>`;
+                    }
                 });
                 html += '</ul>';
                 div.innerHTML = html;
@@ -224,12 +269,12 @@
         div.innerHTML = 'Loading...';
         fetch('https://site.api.espn.com/apis/v2/sports/baseball/mlb/standings?season=2025')
             .then(r => r.json())
-            .then(data => displayStandings(data, 'mlb-standings'))
+            .then(data => displayStandings(data, 'mlb-standings', 'padres'))
             .catch(() => { div.innerHTML = 'Error loading standings'; });
     }
 
     /* ══════════════ Shared Standings ══════════════ */
-    function displayStandings(data, elementId) {
+    function displayStandings(data, elementId, highlightKeyword) {
         const div = document.getElementById(elementId);
         if (!data.children || data.children.length === 0) {
             div.innerHTML = '<p>No standings data available</p>'; return;
@@ -241,7 +286,13 @@
                 const name = team.team.displayName;
                 const wins   = team.stats.find(s => s.name === 'wins')?.displayValue   || '0';
                 const losses = team.stats.find(s => s.name === 'losses')?.displayValue || '0';
-                html += `<li>${name} &nbsp; <strong>${wins}-${losses}</strong></li>`;
+
+                if (highlightKeyword && name.toLowerCase().includes(highlightKeyword)) {
+                    // Padres row — gold text on dark brown, no default list bullet
+                    html += `<li class="padres-standing">⚾ ${name} &nbsp; ${wins}-${losses} 🟡</li>`;
+                } else {
+                    html += `<li>${name} &nbsp; <strong>${wins}-${losses}</strong></li>`;
+                }
             });
             html += '</ol>';
         });
