@@ -3,7 +3,7 @@
 A live sports dashboard built with Python and Flask, pulling real-time data from the ESPN API. Covers PGA, NBA, NFL, and MLB including live scores, season standings, and the latest news for each sport.
 
 ### 🔗 [View the Live Site](https://sports-news-flask-app.onrender.com) 
-*(Note: Replace with your actual Render URL if different!)*
+
 
 ---
 
