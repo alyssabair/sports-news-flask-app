@@ -2,22 +2,30 @@
 
 A live sports dashboard built with Python and Flask, pulling real-time data from the ESPN API. Covers PGA, NBA, NFL, and MLB including live scores, season standings, and the latest news for each sport.
 
-**[View the Live Site](https://alyssas-sports-analytics.onrender.com)**
+### 🔗 [View the Live Site](https://sports-news-flask-app.onrender.com) 
+*(Note: Replace with your actual Render URL if different!)*
 
-## Features
+---
 
-- PGA live tournament leaderboard with top 5 players and scores
-- NBA today's games and season standings
-- NFL season standings by conference
-- MLB today's games and season standings, with special highlighting for the San Diego Padres
-- Latest headlines from ESPN for all four sports
+## 🚀 Features
 
-## Tech Stack
+* **PGA:** Live tournament leaderboard featuring top 5 players and real-time scores.
+* **NBA:** Today's active games and current season standings.
+* **NFL:** Comprehensive season standings organized by conference.
+* **MLB:** Today's games and season standings, with custom tracking and highlighting for the San Diego Padres.
+* **Live News Aggregation:** Latest major headlines fetched directly from ESPN for all four sports.
 
-Python, Flask, and vanilla JavaScript on the frontend. All sports data is fetched live from ESPN's public API directly in the browser. Hosted on Render.
+## 🛠️ Tech Stack & Tools
 
-## Contact
+* **Backend:** Python, Flask
+* **Frontend:** Vanilla JavaScript, HTML5, CSS3
+* **Data Sources:** ESPN Public API (fetched directly in-browser)
+* **Hosting & Deployment:** Render
+* **AI Integration:** Developed utilizing generative AI workflows and advanced prompt engineering to optimize routing structures, streamline code debugging, and accelerate frontend component assembly.
 
-**Alyssa Bair**
-alyssabair3@gmail.com
-[linkedin.com/in/alyssa-bair005](https://www.linkedin.com/in/alyssa-bair005)
+## 📦 Local Installation & Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/alyssabair/sports-news-flask-app.git](https://github.com/alyssabair/sports-news-flask-app.git)
+   cd sports-news-flask-app
